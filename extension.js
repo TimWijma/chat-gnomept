@@ -107,11 +107,11 @@ function init() {}
 
 function enable() {
     let indicator = new PopupExample();
-    Main.panel.addToStatusArea("test-extension", indicator);
+    Main.panel.addToStatusArea("chat-gnomept", indicator);
 
     // Custom keybind
     let settings = ExtensionUtils.getSettings(
-        "org.gnome.shell.extensions.test-extension"
+        "org.gnome.shell.extensions.chat-gnomept"
     );
     Main.wm.addKeybinding(
         "open-search-test",
@@ -126,7 +126,7 @@ function enable() {
 
 function disable() {
     // Remove the extension
-    Main.panel.statusArea["test-extension"].destroy();
+    Main.panel.statusArea["chat-gnomept"].destroy();
 
     // Remove the keybind
     Main.wm.removeKeybinding("open-search-test");

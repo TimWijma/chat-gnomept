@@ -1,5 +1,5 @@
 <schemalist>
-    <schema id="org.gnome.shell.extensions.test-extension" path="/org/gnome/shell/extensions/test-extension/">
+    <schema id="org.gnome.shell.extensions.chat-gnomept" path="/org/gnome/shell/extensions/chat-gnomept/">
         <key name="open-search-test" type="as">
             <default><![CDATA[['<Alt><Shift>X']]]></default>
             <summary>Open search</summary>
