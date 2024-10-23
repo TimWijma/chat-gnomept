@@ -1,0 +1,9 @@
+<schemalist>
+    <schema id="org.gnome.shell.extensions.test-extension" path="/org/gnome/shell/extensions/test-extension/">
+        <key name="open-search-test" type="as">
+            <default><![CDATA[['<Alt><Shift>X']]]></default>
+            <summary>Open search</summary>
+            <description>Keybinding to open search</description>
+        </key>
+    </schema>
+</schemalist>
