@@ -5,5 +5,11 @@
             <summary>Open search</summary>
             <description>Keybinding to open search</description>
         </key>
+
+        <key name="api-key" type="s">
+            <default>"api-key"</default>
+            <summary>API Key</summary>
+            <description>API Key for the chat-gnomept extension</description>
+        </key>
     </schema>
 </schemalist>

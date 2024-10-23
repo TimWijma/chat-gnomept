@@ -5,16 +5,21 @@ const PopupMenu = imports.ui.popupMenu;
 const GObject = imports.gi.GObject;
 const GLib = imports.gi.GLib;
 const Shell = imports.gi.Shell;
-const ExtensionUtils = imports.misc.extensionUtils;
 const Meta = imports.gi.Meta;
 const Soup = imports.gi.Soup;
 const Gio = imports.gi.Gio;
+
+const ExtensionUtils = imports.misc.extensionUtils;
+const Me = ExtensionUtils.getCurrentExtension();
+const Prefs = Me.imports.prefs;
+
+let API_KEY;
 
 var PopupExample = GObject.registerClass(
     class PopupExample extends PanelMenu.Button {
         _init() {
             // Correct way to call parent constructor
-            super._init(0.0, "Test extension");
+            super._init(0.0, "Chat GnomePT");
 
             // Create a button in the top bar
             let icon = new St.Icon({
@@ -28,7 +33,7 @@ var PopupExample = GObject.registerClass(
                 can_focus: true,
                 track_hover: true,
                 hint_text: "Prompt",
-                style_class: "tw-search-entry",
+                style_class: "cgpt-search-entry",
             });
 
             this.search.clutter_text.connect("text-changed", (entry) => {
@@ -40,7 +45,7 @@ var PopupExample = GObject.registerClass(
                     icon_name: "mail-send-symbolic",
                 }),
                 can_focus: true,
-                style_class: "tw-send-button",
+                style_class: "cgpt-send-button",
             });
 
             this.sendButton.connect("clicked", async () => {
@@ -55,12 +60,12 @@ var PopupExample = GObject.registerClass(
                         let resultItem = new PopupMenu.PopupBaseMenuItem({
                             reactive: false,
                             can_focus: false,
-                            style_class: "tw-search-result-item",
+                            style_class: "cgpt-search-result-item",
                         });
 
                         let resultLabel = new St.Label({
                             text: message,
-                            style_class: "tw-search-result-label",
+                            style_class: "cgpt-search-result-label",
                         });
 
                         resultItem.add(resultLabel);
@@ -69,14 +74,17 @@ var PopupExample = GObject.registerClass(
                         logconsole(`Message: ${message}`);
                     })
                     .catch((error) => {
-                        logconsole("Error:", error);
+                        // logconsole("Error:", error);
+                        for (const [key, value] of Object.entries(error)) {
+                            logconsole(`Error: ${key}: ${value}`);
+                        }
                     });
             });
 
             const entryItem = new PopupMenu.PopupBaseMenuItem({
                 reactive: false,
                 can_focus: false,
-                style_class: "tw-search-entry-item",
+                style_class: "cgpt-search-entry-item",
             });
 
             entryItem.add(this.search);
@@ -94,6 +102,26 @@ var PopupExample = GObject.registerClass(
                     });
                 }
             });
+
+            const settingsMenuItem = new PopupMenu.PopupBaseMenuItem();
+            settingsMenuItem.add_child(
+              new St.Icon({
+                icon_name: 'emblem-system-symbolic',
+                style_class: 'cgpt-settings-icon',
+              }),
+            );
+            settingsMenuItem.connect('activate', this._openSettings.bind(this));
+
+            this.menu.addMenuItem(settingsMenuItem);
+        }
+
+        _openSettings() {
+            ExtensionUtils.openPrefs();
+            this.menu.close();
+        }
+
+        _fetchSettings() {
+            API_KEY = Prefs.getString("api-key");
         }
 
         toggleMenu() {
@@ -134,8 +162,6 @@ function disable() {
 
 async function getData(prompt) {
     const url = "https://api.openai.com/v1/chat/completions";
-    const token =
-        "";
     logconsole(`URL: ${url}`);
 
     return new Promise((resolve, reject) => {
@@ -143,7 +169,7 @@ async function getData(prompt) {
         let message = Soup.Message.new("POST", url);
 
         message.request_headers.append("Content-Type", "application/json");
-        message.request_headers.append("Authorization", `Bearer ${token}`);
+        message.request_headers.append("Authorization", `Bearer ${API_KEY}`);
 
         // Prepare the request body
         let body = JSON.stringify({
@@ -175,11 +201,11 @@ async function getData(prompt) {
                     let bytes = session.send_and_read_finish(result);
                     let decoder = new TextDecoder("utf-8");
                     let text = decoder.decode(bytes.get_data());
-                    log(`Raw response: ${text}`);
+                    logconsole(`Raw response: ${text}`);
 
                     try {
                         let jsonResponse = JSON.parse(text);
-                        log(
+                        logconsole(
                             `Parsed response: ${JSON.stringify(
                                 jsonResponse,
                                 null,
@@ -188,7 +214,7 @@ async function getData(prompt) {
                         );
                         resolve(jsonResponse);
                     } catch (parseError) {
-                        log(`Error parsing JSON: ${parseError}`);
+                        logconsole(`Error parsing JSON: ${parseError}`);
                         reject(parseError);
                     }
                 } catch (error) {

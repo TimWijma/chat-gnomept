@@ -1,7 +1,8 @@
 {
     "uuid": "chat-gnomept@timwijma",
-    "name": "Test Extension",
-    "description": "This is a test extension",
+    "name": "Chat GnomePT",
+    "description": "Simple ChatGPT wrapper for GNOME",
     "version": "1.0",
-    "shell-version": ["42"]
+    "shell-version": ["42"],
+    "settings-schema": "org.gnome.shell.extensions.chat-gnomept"
 }
